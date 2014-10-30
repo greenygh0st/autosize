@@ -3,38 +3,37 @@ var fs = require('fs');
 var ugly = require("uglify-js");
 var jshint = require("jshint").JSHINT;
 
-function syncBower() {
-	// Sync package.json properties with bower.json
+function writeBower() {
 	var bower = {
-		name: pkg.config.bowerName,
+		name: pkg.config.bower.name,
 		description: pkg.description,
-		version: pkg.version,
 		dependencies: pkg.dependencies,
 		keywords: pkg.keywords,
 		authors: [pkg.author],
-		licenses: pkg.licenses,
+		license: pkg.license,
 		homepage: pkg.homepage,
+		ignore: pkg.config.bower.ignore,
+		repository: pkg.repository,
 		main: 'dest/'+pkg.config.fileName+'.js'
 	};
 	fs.writeFile('bower.json', JSON.stringify(bower, null, '\t'));
 	return true;
 }
 
-function syncManifest() {
-	// Sync package.json properties with jQuery plugins manifest
+function writeJqueryManifest() {
 	var manifest = {
-		name: pkg.config.jqueryName,
-		title: pkg.title,
-		description: pkg.description,
+		name: pkg.config.jquery.name,
 		version: pkg.version,
-		dependencies: pkg.dependencies,
-		keywords: pkg.keywords,
+		title: pkg.config.title,
 		author: pkg.author,
-		licenses: pkg.licenses,
+		licenses: pkg.config.jquery.licenses,
+		dependencies: pkg.config.jquery.dependencies,
+		description: pkg.description,
+		keywords: pkg.keywords,
 		homepage: pkg.homepage,
 		demo: pkg.homepage
 	};
-	fs.writeFile(pkg.config.jqueryName+'.jquery.json', JSON.stringify(manifest, null, '\t'));
+	fs.writeFile(pkg.config.jquery.name+'.jquery.json', JSON.stringify(manifest, null, '\t'));
 	return true;
 }
 
@@ -42,7 +41,7 @@ function build(full) {
 	var mini = ugly.minify(full, {fromString: true}).code;
 	var header = [
 		"/*!",
-		"	"+pkg.title+" "+pkg.version,
+		"	"+pkg.config.title+" "+pkg.version,
 		"	license: MIT",
 		"	"+pkg.homepage,
 		"*/",
@@ -80,6 +79,6 @@ fs.readFile('src/'+pkg.config.fileName+'.js', 'utf8', function (err,data) {
   if (err) {
     return console.log(err);
   } else {
-  	lint(data) && build(data) && syncBower() && syncManifest();
+  	lint(data) && build(data) && writeBower() && writeJqueryManifest();
   }
 });
