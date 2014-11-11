@@ -29,7 +29,7 @@ window.autosize = (function () {
 	mirror.tabIndex = -1;
 	mirror.id = 'autosize-mirror';
 
-	function autosize(ta, options) {
+	function main(ta, options) {
 		if (!ta.nodeName || ta.nodeName !== 'TEXTAREA' || ta.getAttribute('data-autosize-on')) { return; }
 
 		var maxHeight,
@@ -45,15 +45,15 @@ window.autosize = (function () {
 				resize: ta.style.resize
 			},
 			timeout,
-			width = parseInt(taStyle.width, 10);
+			width = parseFloat(taStyle.width);
 
 		ta.setAttribute('data-autosize-on', true);
 
 		if (taStyle.boxSizing === 'border-box') {
-			boxOffset = parseInt(taStyle.paddingTop, 10)+parseInt(taStyle.paddingBottom, 10)+parseInt(taStyle.borderTopWidth, 10)+parseInt(taStyle.borderBottomWidth, 10);
+			boxOffset = parseFloat(taStyle.paddingTop)+parseFloat(taStyle.paddingBottom)+parseFloat(taStyle.borderTopWidth)+parseFloat(taStyle.borderBottomWidth);
 		}
 
-		minHeight = Math.max(parseInt(taStyle.minHeight, 10) - boxOffset, parseInt(taStyle.height, 10));
+		minHeight = Math.max(parseFloat(taStyle.minHeight) - boxOffset, parseFloat(taStyle.height));
 
 		ta.style.overflow = 'hidden';
 		ta.style.overflowY = 'hidden';
@@ -71,11 +71,11 @@ window.autosize = (function () {
 			var width = ta.getBoundingClientRect().width;
 
 			if (width === 0 || typeof width !== 'number') {
-				width = parseInt(style.width,10);
+				width = parseFloat(style.width);
 			}
 
 			['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'].forEach(function(el){
-				width -= parseInt(style[el],10);
+				width -= parseFloat(style[el]);
 			});
 
 			mirror.style.width = Math.max(width,0) + 'px';
@@ -85,7 +85,7 @@ window.autosize = (function () {
 			var style = window.getComputedStyle(ta, null);
 
 			mirrored = ta;
-			maxHeight = parseInt(style.maxHeight, 10);
+			maxHeight = parseFloat(style.maxHeight);
 
 			// mirror is a duplicate textarea located off-screen that
 			// is automatically updated to contain the same text as the
@@ -138,7 +138,7 @@ window.autosize = (function () {
 
 			mirror.value += options.append || '';
 			mirror.style.overflowY = ta.style.overflowY;
-			original = parseInt(ta.style.height,10);
+			original = parseFloat(ta.style.height);
 
 			mirror.scrollTop = 9e4;
 
@@ -183,13 +183,13 @@ window.autosize = (function () {
 		function resize () {
 			clearTimeout(timeout);
 			timeout = setTimeout(function(){
-				var newWidth = parseInt(window.getComputedStyle(ta, null).width, 10);
+				var newWidth = parseFloat(window.getComputedStyle(ta, null).width);
 
 				if (newWidth !== width) {
 					width = newWidth;
 					adjust();
 				}
-			}, parseInt(options.resizeDelay,10));
+			}, parseFloat(options.resizeDelay));
 		}
 		if (options.resizeDelay !== false) {
 			window.addEventListener('resize', resize);
@@ -243,10 +243,10 @@ window.autosize = (function () {
 		if (typeof window.getComputedStyle === 'function') {
 			if (textareas.length) {
 				Array.prototype.forEach.call(textareas, function(el){
-					autosize(el, options);
+					main(el, options);
 				});
 			} else if (textareas.nodeName) {
-				autosize(textareas, options);
+				main(textareas, options);
 			}
 		}
 
